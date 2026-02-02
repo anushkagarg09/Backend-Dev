@@ -1,35 +1,66 @@
-const express=require('express');
-const app=express();
+const express = require('express');
+const app = express();
 
-const PORT=8000;
+const PORT = 8000;
+
+app.use(express.json());
+
 
 const students = [
-  {id:1,name:"Anushka",branch:"CS"},
-  {id:2,name:"Anushka",branch:"CS"},
-  {id:3,name:"Anushka",branch:"CS"}
-]
+  { id: 1, name: "Anushka", branch: "CS" },
+  { id: 2, name: "Komal", branch: "ECE" },
+  { id: 3, name: "teesha", branch: "IT" }
+];
 
-app.get("/",(req,res)=>{
+app.get("/", (req, res) => {
   res.send("welcome to home page");
-})
+});
 
-app.get("/students",(req,res) => {
-  res.json(students)
-})
+// ✅ Get all students OR filter by branch
+app.get("/students", (req, res) => {
+  const branch = req.query.branch;
 
-app.get("/students/:id",(req,res)=>{
-    res.json(students);
-})
+  if (!branch) {
+    return res.json(students); // 
+  }
 
-app.get("students/search",(req,res) => {
-  const searchQuery = req.query;
-  console.log(req.query);
-})
+  const foundStudents = students.filter(
+    (s) => s.branch === branch
+  );
 
-app.get("/user",(req,res)=>{
-    res.json("user page");
-})
+  res.json(foundStudents);
+});
 
-app.listen(PORT,()=>{
-    console.log("Server is listening on port:8000");
-})
+// ✅ Get student by ID
+app.get("/students/:id", (req, res) => {
+  const id = req.params.id;
+
+  const foundStudent = students.find(
+    (s) => s.id == id
+  );
+
+  if (!foundStudent) {
+    return res.status(404).send("Student not found");
+  }
+
+  res.json(foundStudent);
+});
+
+
+app.post("/students/register", (req, res) => {
+  const data = req.body;
+
+  if (!data || !data.name || !data.branch) {
+    return res.status(400).send("Please provide student details");
+  }
+
+  students.push(data);
+  res.status(201).json({
+    message: "Student registered successfully",
+    student: data
+  });
+});
+
+app.listen(PORT, () => {
+  console.log("Server is listening on port:8000");
+});
