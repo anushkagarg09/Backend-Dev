@@ -1,102 +1,159 @@
-const express = require('express');
-const app = express();
-const PORT = 8000;
-app.use(express.json());
+const express = require("express");
+const fs = require("fs");
 
+const app = express();
+
+const PORT = 8000;
+
+app.use(express.json());
 const students = [
-  { id: 1, name: "Anushka", branch: "CS", email:"anush@gmail.com"},
-  { id: 2, name: "Komal", branch: "ECE",email:"bsjbdj@dwkdk"},
-  { id: 3, name: "teesha", branch: "IT",email:"gdg2dgu@gmail.com"}
+  { id: 1, name: "raj", branch: "CSE" },
+  { id: 2, name: "Ajay", branch: "ECE" },
+  { id: 3, name: "Yash", branch: "IT" },
 ];
 
-app.get("/", (req, res) => {
-  res.send("welcome to home page");
-});
-
-// ✅ Get all students OR filter by branch
-app.get("/students", (req, res) => {
-  const branch = req.query.branch;
-
-  if (!branch) {
-    return res.json(students); // 
-  }
-
-  const foundStudents = students.filter(
-    (s) => s.branch === branch
-  );
-
-  res.json(foundStudents);
-});
-
-// ✅ Get student by ID
-app.get("/students/:id", (req, res) => {
-  const id = req.params.id;
-
-  const foundStudent = students.find(
-    (s) => s.id == id
-  );
-
-  if (!foundStudent) {
-    return res.status(404).send("Student not found");
-  }
-
-  res.json(foundStudent);
-});
-
-
-app.post("/students/register", (req, res) => {
-  if (!data || !data.name || !data.branch || !data.id) {
-    return res.status(400).send("Please provide student details");
-  }
-
-  const validId = students.find(students => students.id === data.id) 
-  if(validId) {
-    return res.status(409).send("id already exist")
-  }
-
-  students.push(data);
-  res.status(201).json({
-    message: "Student registered successfully",
-    student: data
+app.get("/students",async (req,res)=>{
+  console.log(";;;;")
+  fs.readFile("./student.json","utf-8",(err,data) =>{
+    if(err) {
+      return res.status(500).send("Error Occurred");
+    }
+    const b = JSON.parse(data || "[]");
+    console.log(b);
+    return res.status(200).send(b);
   });
-});
-
-app.put("/students/:id",(req, res) =>{
-  const Id = Number(req.params.id);
-  const index = students.findIndex(s => s.id === Id) // 1
-  const user = students[index];
- 
-  if(!user) {
-    res.status(404).json("User Not found");
-    return;
-  }
-
-  students[index] = { ...students[index], ...req.body
-  }
-  res.status(200).json({
-    message:"User Updated Sucessfully",
-    student: students[index]
-  })
 })
 
-// app.put("/students/rest/:id",(req,res) =>{
-//   const Id = Number(req.params.id);
-//   const index = students.findIndex(s => s.id === Id) // 1
-//   const user = students[index];
 
-//   if(!user) {
-//     res.status(404).json("User Not found");
-//     return;
-//   }
-//   const {id, ...updates} = req.body;
-//   students[index]= {...students[index], ...updates}
-//   res.status(200).json({
-//     message:"User Updated Sucessfully",
-//     student: students[index]
-//   })
-// })
-// Data ko resource se update krne ke liye
+
+// app.post("/students/register", (req, res) => {
+//   const { name, branch } = req.body;
+//   if (!name || !branch) return res.status(400).send("Details missing");
+
+//   //  Read the file first
+//   fs.readFile("./students.json", "utf-8", (err, data) => {
+//     if (err) return res.status(500).send("Could not read file");
+
+//     // . Parse existing data or start with empty array
+//     const students = JSON.parse(data || "[]");
+
+//     //  Create and push new student
+//     const newStudent = {
+//       id: students.length > 0 ? students[students.length - 1].id + 1 : 1,
+//       name,
+//       branch,
+//     };
+//     students.push(newStudent);
+
+//     //  Write the WHOLE array back to the file (Overwriting)
+//     fs.writeFile(
+//       "./students.json",
+//       JSON.stringify(students, null, 2),
+//       (err) => {
+//         if (err) return res.status(500).send("Error writing to file");
+
+//         //  ONLY send response inside the success callback
+//         return res
+//           .status(201)
+//           .json({ message: "Registered!", student: newStudent });
+//       },
+//     );
+//   });
+// });
 
 app.listen(PORT, () => {
   console.log("Server is listening on port:8000");
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// app.post("/student/register",(req,res)=>{
+//     const{name,branch}=req.body;
+//     if(!name|| !branch) return res.status(400).send("Details missing");
+//     //send the file first
+//     fs.readFile("./student.json","utf-8",(err,data)=>{
+//         if(err) return res.status(500).send("could not read file");
+
+//         //parsing existing data or start with empty array
+//         const student=JSON.parse(data||"[]");
+
+//         // create and push new student
+//         const newStudent={
+//             id: student.length>0?student[student.length-1].id+1:1,
+//             name,
+//             branch
+//         };
+//         student.push(newStudent);
+
+//         //write the whole array back to the file (overwriting)
+//         fs.writeFile("./student.json",JSON.stringify(student,null,2), (err)=>{
+//             if(err) return res.status(500).send("error in writing the file");
+
+//             //only send response inside the success callback
+//             return res
+//                 .status(201)
+//                 .json({message:"Registered!!!", student:newStudent});
+//         })
+
+//     })
+// })
+
+
+// app.put("/students/.id",(req,res)=>{
+//   const userId = parseInt(req.params.id);
+//   const foundIndex = students.findIndex(s=>s.id === userId);
+
+//   if(founIndex==-1){
+//     return res.staus (404).send("student not found")
+//   }
+//  students[foundIndex]={...PORT.students[foundIndex], ...req.body};
+
+//  const result = {message:"updated successfully", students: students};
+//  return res.status(200).json(result);
+// })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
