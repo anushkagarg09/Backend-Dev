@@ -37,17 +37,16 @@ const logMiddleware=(req,res,next)=>{
 }
 app.use(logMiddleware);
 
-const fileAuthMiddleware = (res,req,next) => {
-  console.log("I am checking file access");
-  next();
-}
-app.use((req,res,next) => {
+
+const fileAuthMiddleware = (req,res,next) => {
   const token = req.headers["authorization"]
   if(token !== "secrettoken") {
-    res.status(401).send("Invalid token")
+    res.status(401).send("Invalid Token")
   }
-  next()
-})
+  next();
+}
+
+
 
 const readStudentsFromFile = async () => {
   const data = await fs.readFile("./students.json", "utf-8");
@@ -58,7 +57,7 @@ const writeStudentsToFile = async (records) => {
   await fs.writeFile("./students.json", JSON.stringify(records, null, 2));
 };
 
-app.get("/students",fileAuthMiddleware , async(req, res) => {
+app.get("/students",fileAuthMiddleware,async(req, res) => {
     const students= await readStudentsFromFile();
     return res.status(200).json(students);
 })
